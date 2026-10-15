@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>{{ page_title }}</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f6f8;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 20px 16px 50px;
+            background: white;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 18px;
+            color: #555;
+            text-decoration: none;
+        }
+
+        h1 {
+            margin: 0 0 5px;
+        }
+
+        .store-name {
+            margin: 0 0 24px;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 13px 12px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background: white;
+            font: inherit;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .form-checkbox {
+            width: 22px;
+            height: 22px;
+        }
+
+        .current-image {
+            display: block;
+            width: 160px;
+            height: 160px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .errorlist {
+            color: #c62828;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 15px;
+            border: 0;
+            border-radius: 12px;
+            background: #246bfd;
+            color: white;
+            font-size: 17px;
+            font-weight: 700;
+        }
+                .pricing-box {
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #cfdcff;
+            border-radius: 12px;
+            background: #f4f7ff;
+        }
+
+        .pricing-box h2 {
+            margin: 0 0 4px;
+            font-size: 17px;
+        }
+
+        .pricing-help {
+            margin: 0 0 16px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .pricing-grid .form-group {
+            margin-bottom: 0;
+        }
+
+        .pricing-grid .form-label {
+            font-size: 14px;
+        }
+
+        .pricing-result {
+            padding: 14px;
+            margin-top: 16px;
+            border-radius: 10px;
+            background: white;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .pricing-result strong {
+            font-size: 16px;
+        }
+
+        .owner-only {
+            color: #c62828;
+            font-size: 12px;
+        }
+
+        .price-note {
+            margin: 6px 0 0;
+            color: #666;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <a
+            class="back-link"
+            href="{% url 'stores:owner_product_list' %}"
+        >
+            ← 메뉴 목록
+        </a>
+
+        <h1>{{ page_title }}</h1>
+        <p class="store-name">{{ store.name }}</p>
+
+        <form
+            method="post"
+            enctype="multipart/form-data"
+        >
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            <div class="form-group">
+                <label class="form-label">상품 분류</label>
+                {{ form.category }}
+                {{ form.category.errors }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">상품명</label>
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">상품 설명</label>
+                {{ form.description }}
+                {{ form.description.errors }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">대표사진</label>
+
+                {% if product and product.image %}
+                    <img
+                        class="current-image"
+                        src="{{ product.image.url }}"
+                        alt="{{ product.name }}"
+                    >
+                {% endif %}
+
+                {{ form.image }}
+                {{ form.image.errors }}
+            </div>
+
+                        <section class="pricing-box">
+                <h2>가격 자동계산</h2>
+                <p class="pricing-help">
+                    도매가격과 마진율을 넣으면 소비자가가 계산됩니다.
+                    <span class="owner-only">
+                        도매가격과 마진율은 고객에게 보이지 않습니다.
+                    </span>
+                </p>
+
+                <div class="pricing-grid">
+                    <div class="form-group">
+                        <label class="form-label">도매가격(원)</label>
+                        {{ form.wholesale_price }}
+                        {{ form.wholesale_price.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">도매 총 용량</label>
+                        {{ form.wholesale_amount }}
+                        {{ form.wholesale_amount.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">용량 단위</label>
+                        {{ form.unit_type }}
+                        {{ form.unit_type.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">기준 단위 (예: 100)</label>
+                        {{ form.unit_base }}
+                        {{ form.unit_base.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">마진율(%)</label>
+                        {{ form.margin_percent }}
+                        {{ form.margin_percent.errors }}
+                    </div></div>
+
+                    <div class="form-group">
+                        <label class="form-label">판매 용량</label>
+                        {{ form.sale_amount }}
+                        {{ form.sale_amount.errors }}
+                    </div>
+                </div>
+
+                <div class="pricing-result" id="pricingResult">
+                    값을 입력하면 계산 결과가 여기에 표시됩니다.
+                </div>
+            </section>
+
+            <div class="form-group">
+                <label class="form-label">판매가격(원)</label>
+                {{ form.price }}
+                {{ form.price.errors }}
+                <p class="price-note" id="priceNote">
+                    자동계산을 쓰지 않을 때 직접 입력하세요.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">준비시간(분)</label>
+                {{ form.preparation_minutes }}
+                {{ form.preparation_minutes.errors }}
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-row">
+                    {{ form.is_available }}
+                    <span>고객에게 판매 메뉴로 표시</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-row">
+                    {{ form.is_sold_out }}
+                    <span>현재 품절</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">노출 순서</label>
+                {{ form.display_order }}
+                {{ form.display_order.errors }}
+            </div>
+
+            <button
+                class="submit-button"
+                type="submit"
+            >
+                {{ submit_text }}
+            </button>
+        </form>
+    </main>
+        <script>
+        const field = (name) =>
+            document.getElementById(`id_${name}`);
+
+        const wholesalePrice = field("wholesale_price");
+        const wholesaleAmount = field("wholesale_amount");
+        const unitType = field("unit_type");
+        const unitBase = field("unit_base");
+        const marginPercent = field("margin_percent");
+        const saleAmount = field("sale_amount");
+        const priceInput = field("price");
+
+        const resultBox =
+            document.getElementById("pricingResult");
+
+        const priceNote =
+            document.getElementById("priceNote");
+
+        // 서버(models.py)와 같은 방식: 10원 단위 올림
+        function roundUp10(value) {
+            const cleaned =
+                Math.round((value / 10) * 1e6) / 1e6;
+
+            return Math.ceil(cleaned) * 10;
+        }
+
+        function won(value) {
+            return `${value.toLocaleString()}원`;
+        }
+
+        function updatePricing() {
+            const wPrice = parseFloat(wholesalePrice.value);
+            const wAmount = parseFloat(wholesaleAmount.value);
+            const base = parseFloat(unitBase.value);
+            const margin = parseFloat(marginPercent.value);
+            const sAmount = parseFloat(saleAmount.value);
+
+            const unitText =
+                unitType.options[unitType.selectedIndex].text;
+
+            const inputs = [
+                wholesalePrice,
+                wholesaleAmount,
+                marginPercent,
+                saleAmount,
+            ];
+
+            const filledCount = inputs.filter(
+                (el) => el.value.trim() !== ""
+            ).length;
+
+            if (filledCount === 0) {
+                resultBox.textContent =
+                    "값을 입력하면 계산 결과가 여기에 표시됩니다.";
+                priceInput.readOnly = false;
+                priceNote.textContent =
+                    "자동계산을 쓰지 않을 때 직접 입력하세요.";
+                return;
+            }
+
+            const valid =
+                wPrice >= 0 &&
+                wAmount > 0 &&
+                base > 0 &&
+                margin >= 0 &&
+                sAmount > 0;
+
+            if (filledCount < 4 || !valid) {
+                resultBox.textContent =
+                    "도매가격, 도매 총 용량, 마진율, 판매 용량을 모두 입력하면 계산됩니다.";
+                priceInput.readOnly = false;
+                priceNote.textContent =
+                    "자동계산 항목을 모두 입력하거나 모두 비워 주세요.";
+                return;
+            }
+
+            const unitCost = (wPrice / wAmount) * base;
+            const unitSale = roundUp10(
+                unitCost * (1 + margin / 100)
+            );
+            const finalPrice = roundUp10(
+                (unitSale * sAmount) / base
+            );
+
+            resultBox.innerHTML =
+                `${base}${unitText}당 도매 원가: ` +
+                `<strong>${won(Math.round(unitCost))}</strong><br>` +
+                `${base}${unitText}당 소비자가: ` +
+                `<strong>${won(unitSale)}</strong><br>` +
+                `${sAmount}${unitText} 판매가격: ` +
+                `<strong>${won(finalPrice)}</strong>`;
+
+            priceInput.value = finalPrice;
+            priceInput.readOnly = true;
+            priceNote.textContent =
+                "자동계산 값이 저장됩니다. 직접 입력하려면 자동계산 항목을 비우세요.";
+        }
+
+        [
+            wholesalePrice,
+            wholesaleAmount,
+            unitType,
+            unitBase,
+            marginPercent,
+            saleAmount,
+        ].forEach((el) => {
+            el.addEventListener("input", updatePricing);
+            el.addEventListener("change", updatePricing);
+        });
+
+        updatePricing();
+    </script>
+</body>
+</html>

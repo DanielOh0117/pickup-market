@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>{{ store.name }} 메뉴</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding-bottom: 100px;
+            background: #f5f6f8;
+            color: #222;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+            background: white;
+        }
+
+        .store-header {
+            margin-bottom: 22px;
+        }
+
+        .store-header h1 {
+            margin: 0 0 7px;
+            font-size: 25px;
+        }
+
+        .store-address {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .section-title {
+            margin: 25px 0 14px;
+            font-size: 19px;
+        }
+
+        .product-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .product-card {
+            padding: 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 14px;
+            background: white;
+        }
+
+        .product-main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 110px;
+            gap: 14px;
+        }
+
+        .product-content {
+            min-width: 0;
+        }
+
+        .product-category {
+            margin: 0 0 5px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .product-name {
+            margin: 0 0 7px;
+            overflow-wrap: anywhere;
+            font-size: 18px;
+        }
+
+        .product-description {
+            display: -webkit-box;
+            margin: 0 0 9px;
+            overflow: hidden;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+        }
+
+        .product-price {
+            margin: 0 0 5px;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .preparation-time {
+            margin: 0;
+            color: #246bfd;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .image-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 110px;
+            height: 110px;
+            padding: 5px;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #eeeeee;
+        }
+
+        .product-image {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            margin: auto;
+        }
+
+        .no-image {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .sold-out-cover {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.58);
+            color: white;
+            font-weight: 800;
+        }
+
+        .order-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 15px;
+            padding-top: 14px;
+            border-top: 1px solid #eeeeee;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            border: 1px solid #dddddd;
+            border-radius: 9px;
+        }
+
+        .quantity-button {
+            width: 38px;
+            height: 38px;
+            border: 0;
+            background: white;
+            font-size: 21px;
+            cursor: pointer;
+        }
+
+        .quantity {
+            min-width: 34px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .cart-button {
+            flex: 1;
+            max-width: 170px;
+            height: 40px;
+            border: 0;
+            border-radius: 9px;
+            background: #246bfd;
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .cart-button:disabled {
+            background: #bbbbbb;
+            cursor: not-allowed;
+        }
+
+        .empty {
+            padding: 45px 20px;
+            border: 1px dashed #cccccc;
+            border-radius: 14px;
+            color: #777;
+            text-align: center;
+        }
+
+        .cart-bar {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+            display: none;
+            padding: 12px 16px;
+            background: white;
+            box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .cart-bar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 648px;
+            margin: 0 auto;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: #246bfd;
+            color: white;
+        }
+
+        .cart-summary {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .cart-total {
+            margin-top: 2px;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .view-cart-button {
+            border: 0;
+            background: transparent;
+            color: white;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            z-index: 20;
+            display: none;
+            width: calc(100% - 32px);
+            max-width: 440px;
+            padding: 13px 16px;
+            transform: translateX(-50%);
+            border-radius: 10px;
+            background: #222;
+            color: white;
+            text-align: center;
+            font-size: 14px;
+        }
+                .unit-price {
+            margin: 0 0 5px;
+            color: #888;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <div
+        id="toast"
+        class="toast"
+    >
+        장바구니에 담았습니다.
+    </div>
+
+    <main class="container">
+        <header class="store-header">
+            <h1>{{ store.name }}</h1>
+
+            {% if store.address %}
+                <p class="store-address">
+                    {{ store.address }}
+                </p>
+            {% endif %}
+        </header>
+
+        <h2 class="section-title">
+            픽업 주문 가능 메뉴
+        </h2>
+
+        {% if products %}
+            <section class="product-list">
+                {% for product in products %}
+                    <article
+                        class="product-card"
+                        data-product-id="{{ product.id }}"
+                        data-name="{{ product.name }}"
+                        data-price="{{ product.price }}"
+                        data-image="{% if product.image %}{{ product.image.url }}{% endif %}"
+                    >
+                        <div class="product-main">
+                            <div class="product-content">
+                                <p class="product-category">
+                                    {{ product.get_category_display }}
+                                </p>
+
+                                <h3 class="product-name">
+                                    {{ product.name }}
+                                </h3>
+
+                                {% if product.description %}
+                                    <p class="product-description">
+                                        {{ product.description }}
+                                    </p>
+                                {% endif %}
+
+                                <p class="product-price">
+                                    {{ product.price }}원
+                                </p>
+
+                                <p class="preparation-time">
+                                    예상 준비시간
+                                    {{ product.preparation_minutes }}분
+                                </p>
+
+                                {% if product.unit_sale_price %}
+                                    <p class="unit-price">
+                                        {% if product.sale_amount %}
+                                            {{ product.sale_amount|floatformat:"-2" }}{{ product.get_unit_type_display }} ·
+                                        {% endif %}
+                                        {{ product.unit_base }}{{ product.get_unit_type_display }}당
+                                        {{ product.unit_sale_price }}원
+                                    </p>
+                                {% endif %}
+
+                            </div>
+
+                            <div class="image-box">
+                                {% if product.image %}
+                                    <img
+                                        class="product-image"
+                                        src="{{ product.image.url }}"
+                                        alt="{{ product.name }}"
+                                    >
+                                {% else %}
+                                    <span class="no-image">
+                                        사진 없음
+                                    </span>
+                                {% endif %}
+
+                                {% if product.is_sold_out %}
+                                    <div class="sold-out-cover">
+                                        품절
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="order-control">
+                            <div class="quantity-control">
+                                <button
+                                    class="quantity-button minus-button"
+                                    type="button"
+                                    aria-label="수량 감소"
+                                    {% if product.is_sold_out %}disabled{% endif %}
+                                >
+                                    −
+                                </button>
+
+                                <span class="quantity">
+                                    1
+                                </span>
+
+                                <button
+                                    class="quantity-button plus-button"
+                                    type="button"
+                                    aria-label="수량 증가"
+                                    {% if product.is_sold_out %}disabled{% endif %}
+                                >
+                                    +
+                                </button>
+                            </div>
+
+                            <button
+                                class="cart-button"
+                                type="button"
+                                {% if product.is_sold_out %}disabled{% endif %}
+                            >
+                                {% if product.is_sold_out %}
+                                    품절
+                                {% else %}
+                                    장바구니 담기
+                                {% endif %}
+                            </button>
+                        </div>
+                    </article>
+                {% endfor %}
+            </section>
+        {% else %}
+            <div class="empty">
+                현재 주문 가능한 메뉴가 없습니다.
+            </div>
+        {% endif %}
+    </main>
+
+    <div
+        id="cartBar"
+        class="cart-bar"
+    >
+        <div class="cart-bar-inner">
+            <div>
+                <div
+                    id="cartCount"
+                    class="cart-summary"
+                >
+                    0개 메뉴
+                </div>
+
+                <div
+                    id="cartTotal"
+                    class="cart-total"
+                >
+                    0원
+                </div>
+            </div>
+
+            <button
+                id="viewCartButton"
+                class="view-cart-button"
+                type="button"
+            >
+                장바구니 보기 →
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const storeId = "{{ store.id }}";
+        const cartKey = `pickup_cart_store_${storeId}`;
+
+        const cartBar = document.getElementById("cartBar");
+        const cartCount = document.getElementById("cartCount");
+        const cartTotal = document.getElementById("cartTotal");
+        const toast = document.getElementById("toast");
+
+        function loadCart() {
+            const savedCart = localStorage.getItem(cartKey);
+
+            if (!savedCart) {
+                return {};
+            }
+
+            try {
+                return JSON.parse(savedCart);
+            } catch (error) {
+                return {};
+            }
+        }
+
+        let cart = loadCart();
+
+        function saveCart() {
+            localStorage.setItem(
+                cartKey,
+                JSON.stringify(cart)
+            );
+
+            updateCartBar();
+        }
+
+        function updateCartBar() {
+            const items = Object.values(cart);
+
+            const totalQuantity = items.reduce(
+                (sum, item) => sum + item.quantity,
+                0
+            );
+
+            const totalPrice = items.reduce(
+                (sum, item) => {
+                    return sum + (
+                        item.price * item.quantity
+                    );
+                },
+                0
+            );
+
+            if (totalQuantity === 0) {
+                cartBar.style.display = "none";
+                return;
+            }
+
+            cartCount.textContent =
+                `${totalQuantity}개 담김`;
+
+            cartTotal.textContent =
+                `${totalPrice.toLocaleString()}원`;
+
+            cartBar.style.display = "block";
+        }
+
+        function showToast() {
+            toast.style.display = "block";
+
+            window.setTimeout(() => {
+                toast.style.display = "none";
+            }, 1300);
+        }
+
+        document.querySelectorAll(
+            ".product-card"
+        ).forEach((card) => {
+            const quantityElement =
+                card.querySelector(".quantity");
+
+            const minusButton =
+                card.querySelector(".minus-button");
+
+            const plusButton =
+                card.querySelector(".plus-button");
+
+            const cartButton =
+                card.querySelector(".cart-button");
+
+            minusButton.addEventListener(
+                "click",
+                () => {
+                    const currentQuantity =
+                        Number(quantityElement.textContent);
+
+                    if (currentQuantity > 1) {
+                        quantityElement.textContent =
+                            currentQuantity - 1;
+                    }
+                }
+            );
+
+            plusButton.addEventListener(
+                "click",
+                () => {
+                    const currentQuantity =
+                        Number(quantityElement.textContent);
+
+                    if (currentQuantity < 99) {
+                        quantityElement.textContent =
+                            currentQuantity + 1;
+                    }
+                }
+            );
+
+            cartButton.addEventListener(
+                "click",
+                () => {
+                    const productId =
+                        card.dataset.productId;
+
+                    const quantity =
+                        Number(quantityElement.textContent);
+
+                    const existingItem =
+                        cart[productId];
+
+                    if (existingItem) {
+                        existingItem.quantity += quantity;
+                    } else {
+                        cart[productId] = {
+                            id: Number(productId),
+                            name: card.dataset.name,
+                            price: Number(
+                                card.dataset.price
+                            ),
+                            image: card.dataset.image,
+                            quantity: quantity,
+                        };
+                    }
+
+                    quantityElement.textContent = "1";
+
+                    saveCart();
+                    showToast();
+                }
+            );
+        });
+
+        document.getElementById(
+            "viewCartButton"
+        ).addEventListener("click", () => {
+            window.location.href =
+                "{% url 'stores:cart_detail' store.id %}";
+        });
+
+        updateCartBar();
+    </script>
+</body>
+</html>
